@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"google.golang.org/appengine/urlfetch"
 
 	"golang.org/x/net/context"
 )
@@ -51,6 +52,17 @@ func NewClient(ctx context.Context, config *Config, token *Token) *http.Client {
 		auther: newAuther(config),
 	}
 	return &http.Client{Transport: transport}
+}
+
+func NewAppEngineClient(ctx context.Context, config *Config, token *Token) *http.Client {
+	client := &http.Client{
+		Transport: &Transport{
+			Base:   &urlfetch.Transport{Context: ctx},
+			source: StaticTokenSource(token),
+			auther: newAuther(config),
+		},
+	}
+	return client;
 }
 
 // RequestToken obtains a Request token and secret (temporary credential) by
